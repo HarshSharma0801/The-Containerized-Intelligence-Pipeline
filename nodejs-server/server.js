@@ -38,13 +38,12 @@ app.get("/calculate", async (req, res) => {
     const endTime = Date.now();
     const processingTime = endTime - startTime;
 
-    const result = await pool.query(
-      "INSERT INTO process_logs (time, processing_time) VALUES ($1, $2) RETURNING process_number",
+    await pool.query(
+      "INSERT INTO process_logs (time, processing_time) VALUES ($1, $2)",
       [new Date(), String(response.data.time)]
     );
 
-    const processNumber = result.rows[0].process_number;
-    console.log(`Process ${processNumber} completed in ${processingTime}ms`);
+    console.log(`Process  completed in ${processingTime}ms`);
 
     res.json({
       processNumber: processNumber,
