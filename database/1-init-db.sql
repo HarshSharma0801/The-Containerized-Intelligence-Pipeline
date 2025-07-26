@@ -1,2 +1,2 @@
 -- Create the logs database
-CREATE DATABASE logs;
+CREATE DATABASE IF NOT EXISTS logs;
