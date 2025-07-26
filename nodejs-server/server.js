@@ -46,7 +46,6 @@ app.get("/calculate", async (req, res) => {
     console.log(`Process  completed in ${processingTime}ms`);
 
     res.json({
-      processNumber: processNumber,
       result: response.data,
       processingTime: processingTime,
       timestamp: new Date(),
