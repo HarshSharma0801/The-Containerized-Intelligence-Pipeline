@@ -61,7 +61,7 @@ func main() {
 }
 
 func calculatePrime() {
-	const MAX int64 = 100000000
+	const MAX int64 = 100000
 	var start int64 = 0
 	var totalPrime int64 = 0
 	const CONCURRENCY = 10
