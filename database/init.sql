@@ -1,3 +1,6 @@
+-- Create the logs database
+CREATE DATABASE IF NOT EXISTS logs;
+
 -- Connect to the logs database
 \connect logs
 
