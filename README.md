@@ -25,6 +25,7 @@ As a DevOps engineer in a modern tech company, you're tasked with deploying a sc
 | ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-336791?style=flat&logo=postgresql&logoColor=white)       | Database            | Robust, ACID-compliant database with excellent Docker support     |
 | ![Gin](https://img.shields.io/badge/Gin-00ADD8?style=flat&logo=go&logoColor=white)                             | Go Web Framework    | Lightweight, fast HTTP framework for Go services                  |
 | ![Express](https://img.shields.io/badge/Express-000000?style=flat&logo=express&logoColor=white)                | Node.js Framework   | Minimal, flexible web application framework                       |
+| ![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-2088FF?style=flat&logo=github-actions&logoColor=white) | CI/CD Pipeline       | Tight integration with GitHub, simplest way to create CI/CD pipelines |
 
 ## 📋 Implementation Steps
 
