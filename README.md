@@ -33,7 +33,7 @@ As a DevOps engineer in a modern tech company, you're tasked with deploying a sc
 
 Set up environment variables for secure configuration management
 
-<img width="860" height="597" alt="Environment Setup" src="https://github.com/user-attachments/assets/9d6ccd31-aceb-4e36-9518-87c4a4028b73" />
+<img width="940" height="460" alt="Screenshot 2025-07-27 at 6 55 41 PM" src="https://github.com/user-attachments/assets/9e07ec9f-f5fa-4f3b-8d89-5522bb861ed3" />
 
 ```bash
 # Copy environment template
@@ -45,11 +45,12 @@ cp env.example .env
 # - Security settings
 ```
 
-### Step 2: Database Initialization
+### Step 2: Docker Compose File 
 
-Configure PostgreSQL with persistent volume and initialization scripts
+Configure `docker-compose.yml` for all the services configure PostgreSQL with persistent volume and initialization scripts in `database` directory 
 
-<img width="983" height="459" alt="Database Setup" src="https://github.com/user-attachments/assets/a65b742e-fcdd-41ed-ac57-c82696684288" />
+<img width="940" height="753" alt="Screenshot 2025-07-27 at 6 56 03 PM" src="https://github.com/user-attachments/assets/204f0c41-fbc5-4c3c-856d-dfa7edb4f5a6" />
+
 
 ```sql
 -- Automatic table creation on container startup
@@ -60,77 +61,137 @@ CREATE TABLE IF NOT EXISTS process_logs (
 );
 ```
 
-### Step 3: Go Computation Service
+### Step 3: Spinning up Ec2 (Large Size Recommended for High Computation) 
 
-Build and deploy the high-performance Go service for prime calculations
+Spin up Ec2 on AWS and install various elements as root user
 
-<img width="860" height="658" alt="Go Service Deployment" src="https://github.com/user-attachments/assets/49f27a90-df8e-4faa-a1da-cb9f85fda3b2" />
-
-```bash
-# Go service handles CPU-intensive computations
-# - Concurrent prime number calculations
-# - Health check endpoints
-# - Performance metrics
-```
-
-### Step 4: Node.js API Gateway
-
-Deploy the Express server as the main entry point and orchestrator
-
-<img width="860" height="597" alt="Node.js Gateway" src="https://github.com/user-attachments/assets/0267e2d4-1ff7-4880-86e6-dae6938383bf" />
+1. `Docker`
+2. `git`
+3. `docker-compose` 
 
 ```bash
-# Node.js service coordinates:
-# - API request handling
-# - Service-to-service communication
-# - Database logging
-# - Response aggregation
+# Update system
+yum update -y        # For Amazon Linux
+# OR
+apt update && apt upgrade -y  # For Ubuntu
+
+# Install Docker
+yum install docker -y
+# OR
+apt install docker.io -y
+
+# Start Docker
+systemctl start docker
+systemctl enable docker
+
+# Install docker-compose
+curl -L "https://github.com/docker/compose/releases/download/2.24.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+chmod +x /usr/local/bin/docker-compose
+
+# Install git
+yum install docker -y
+
+# Confirm installation
+docker --version
+docker-compose --version
+
 ```
 
-### Step 5: Container Orchestration
+### Step 4: Attach , Mount and Fomrat EBS Volume for Database for Ec2
 
-Launch the complete microservices stack with Docker Compose
-
-<img width="860" height="597" alt="Container Orchestration" src="https://github.com/user-attachments/assets/5264b737-e3a0-45f9-bb45-83892848df97" />
+Mount and Format attached EBS Volume onto Ec2 on a directory for database storage example below this volume xvdb is mounted on /mnt/xvdb directory
 
 ```bash
-# Start all services with dependencies
-docker-compose up --build
+# Commands
+
+# Check the Attached Volume
+df -h
+
+# Format the volume attached on Ec2
+sudo mkfs.ext4 /dev/xvdb 
+
+# Mount on a directory
+sudo mkdir -p /mnt/xvdb
+sudo mount /dev/xvdb /mnt/xvdb
 ```
 
-### Step 6: Service Health Verification
+<img width="855" height="199" alt="Screenshot 2025-07-27 at 7 22 25 PM" src="https://github.com/user-attachments/assets/dc37db18-4987-4b14-b24e-b99171463b21" />
 
-Verify all services are running and communicating properly
+### Step 5: Create deploy User and setup Permissions
 
-<img width="860" height="597" alt="Health Checks" src="https://github.com/user-attachments/assets/06028d53-4803-40cb-8feb-8664985c0df0" />
+create a deploy user and setup permission as it will be responsible for deploying (good practice you can do it via root user too)
 
 ```bash
-# Check all service endpoints
-curl http://localhost:3000/health
-curl http://localhost:8086/health
+
+# Add a user
+sudo adduser deploy
+
+# Add user in user groups for docker and wheel (run sudo commands)
+usermod -aG docker deploy
+usermod -aG wheel deploy
+
+# login deploy
+su deploy
+
 ```
 
-## 🚀 Quick Start
+setup ssh key
 
 ```bash
-# 1. Clone and navigate to project
-git clone <repository-url>
-cd The-Containerized-Intelligence-Pipeline
-
-# 2. Set up environment
-cp env.example .env
-# Edit .env with your preferred settings
-
-# 3. Deploy the complete stack
-docker-compose up --build
-
-# 4. Verify deployment
-curl http://localhost:3000/health
-curl http://localhost:8086/health
-
-# 5. Test the pipeline
-curl http://localhost:3000/calculate
+# Generate ssh key
+ssh-keygen
+cd ~/.ssh
 ```
+
+In `authorized_keys` remove the restrictions related to ssh 
+
+give permission to postgres service (you can find the id once its created on docker-compose) for mounted directory example (/mnt/xvdb/postgres-data) so that it can access and write into it
+
+
+### Step 6: Clone git repository in deploy user and setup Env 
+
+```bash
+# Login as deploy user
+su deploy
+
+# Go to ~ directory and clone repository
+cd ~ 
+git clone https://github.com/HarshSharma0801/The-Containerized-Intelligence-Pipeline.git
+
+# Cd into Repository and setup env
+
+cd The-Containerized-Intelligence-Pipeline 
+vim env 
+```
+
+## Step 7: Start The Containers and verify
+
+```bash
+
+# start docker compose 
+docker-compose up -d --build 
+
+# Verify using 
+docker ps
+```
+
+<img width="1017" height="133" alt="Screenshot 2025-07-27 at 7 41 37 PM" src="https://github.com/user-attachments/assets/bacee4e7-beb6-42da-83e8-792eb687d60a" />
+
+
+## Step 7: Setup CI/CD Pipeline
+
+1. Create `./github/workflows/deploy.yml`
+
+<img width="1017" height="701" alt="Screenshot 2025-07-27 at 7 43 09 PM" src="https://github.com/user-attachments/assets/a4841dc8-03db-43eb-af8d-005f114ec25a" />
+
+2. Drive Github Secrets 
+
+`EC2_SSH_KEY` -> private ssh key for deploy user found in .ssh folder in deploy user (needed for ssh into ec2 as deploy user without password)
+`EC2_HOST` -> ec2 Host found in ec2 dashboard
+`EC2_USER` -> deploy
+`ENV_FILE` -> check the env file in `.env.example`
+
+3. Push to main branch to see the actions tab 
 
 ## 🏗️ Architecture Overview
 
